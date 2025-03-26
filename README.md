@@ -5,7 +5,7 @@ These templates can be used to create MinIO server instances using Lima virtual 
 ## Create Lima disks
 
 If you want to use Lima VMs with additional disks, you should create them first.
-In the provided templates we use disk names `min1`, `min2`, etc.
+In the provided templates we use disk names `minio1`, `minio2`, etc.
 
 **Note**: please don't use disk names longer than 7 characters due to the limit in XFS file system labels.
 
@@ -14,7 +14,7 @@ We provide templates with four and eight disks.
 To create eight disks 100 GiB each run the following command:
 
 ```shell
-for i in {1..8}; do limactl disk create "min${i}" --size 100GiB ; done
+for i in {1..8}; do limactl disk create "minio${i}" --size 100GiB ; done
 ```
 
 ## Start the VMs

@@ -46,3 +46,11 @@ provision:
     curl -o /tmp/mc.deb https://dl.min.io/client/mc/release/linux-arm64/mc.deb
     dpkg -i /tmp/mc.deb
     ln -s /usr/local/bin/mcli /usr/local/bin/mc
+
+    groupadd -r minio-user
+    useradd -M -r -g minio-user minio-user
+    chown minio-user:minio-user /mnt/lima-minio{1..4}
+
+    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env_4disks
+
+    systemctl enable --now minio

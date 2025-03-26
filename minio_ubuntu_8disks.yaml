@@ -36,28 +36,28 @@ networks:
 - lima: user-v2
 
 additionalDisks:
-- name: "min1"
+- name: "minio1"
   format: true
   fsType: "xfs"
-- name: "min2"
+- name: "minio2"
   format: true
   fsType: "xfs"
-- name: "min3"
+- name: "minio3"
   format: true
   fsType: "xfs"
-- name: "min4"
+- name: "minio4"
   format: true
   fsType: "xfs"
-- name: "min5"
+- name: "minio5"
   format: true
   fsType: "xfs"
-- name: "min6"
+- name: "minio6"
   format: true
   fsType: "xfs"
-- name: "min7"
+- name: "minio7"
   format: true
   fsType: "xfs"
-- name: "min8"
+- name: "minio8"
   format: true
   fsType: "xfs"
 
@@ -77,7 +77,7 @@ provision:
 
     groupadd -r minio-user
     useradd -M -r -g minio-user minio-user
-    chown minio-user:minio-user /mnt/lima-min{1..8}
+    chown minio-user:minio-user /mnt/lima-minio{1..8}
 
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env_8disks
 
