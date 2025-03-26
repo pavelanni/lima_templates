@@ -1,0 +1,4 @@
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+MINIO_VOLUMES="/mnt/lima-min{1...4}"
+MINIO_OPTS="--address :9000 --console-address :9001"
