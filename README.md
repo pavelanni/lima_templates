@@ -28,13 +28,13 @@ limactl start --name minio-server --tty=false https://raw.githubusercontent.com/
 Or, start the server VM with 4 additional disks:
 
 ```shell
-limactl start --name minio-server --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_4disks.yaml
+limactl start --name minio-server-4d --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_4disks.yaml
 ```
 
 Or, start the server VM with 8 additional disks:
 
 ```shell
-limactl start --name minio-server --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_8disks.yaml
+limactl start --name minio-server-8d --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_8disks.yaml
 ```
 
 Start the client VM:

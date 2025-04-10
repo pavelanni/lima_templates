@@ -49,8 +49,8 @@ provision:
 
     groupadd -r minio-user
     useradd -M -r -g minio-user minio-user
-    chown minio-user:minio-user /mnt/lima-minio{1..4}
+    chown minio-user:minio-user /mnt/minio
 
-    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env_4disks
+    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env
 
     systemctl enable --now minio

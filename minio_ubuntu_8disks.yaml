@@ -78,6 +78,14 @@ provision:
     groupadd -r minio-user
     useradd -M -r -g minio-user minio-user
     chown minio-user:minio-user /mnt/lima-minio{1..8}
+    echo "LABEL=lima-minio1	/mnt/lima-minio1	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio2	/mnt/lima-minio2	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio3	/mnt/lima-minio3	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio4	/mnt/lima-minio4	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio5	/mnt/lima-minio5	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio6	/mnt/lima-minio6	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio7	/mnt/lima-minio7	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio8	/mnt/lima-minio8	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
 
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env_8disks
 
