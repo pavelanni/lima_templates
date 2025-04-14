@@ -40,10 +40,10 @@ provision:
     set -e
     apt update
     apt install -y net-tools
-    curl -o /tmp/minio.deb https://dl.min.io/server/minio/release/linux-arm64/minio.deb
+    curl -o /tmp/minio.deb https://dl.min.io/aistor/minio/release/linux-arm64/minio.deb
     dpkg -i /tmp/minio.deb
 
-    curl -o /tmp/mc.deb https://dl.min.io/client/mc/release/linux-arm64/mc.deb
+    curl -o /tmp/mc.deb https://dl.min.io/aistor/mc/release/linux-arm64/mc-enterprise.deb
     dpkg -i /tmp/mc.deb
     ln -s /usr/local/bin/mcli /usr/local/bin/mc
 
@@ -52,6 +52,6 @@ provision:
     mkdir -p /mnt/minio
     chown minio-user:minio-user /mnt/minio
 
-    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_env
+    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env
 
     systemctl enable --now minio

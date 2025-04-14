@@ -40,7 +40,7 @@ limactl start --name minio-server-8d --tty=false https://raw.githubusercontent.c
 Start the client VM:
 
 ```shell
-limactl start --name minio-client --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu.yaml
+limactl start --name minio-client --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_client.yaml
 ```
 
 Check if you can SSH into the client VM and ping the server VM:
