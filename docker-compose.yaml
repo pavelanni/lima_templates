@@ -1,0 +1,25 @@
+services:
+  minio:
+    image: aistor_custom:v0.1
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Console port
+    volumes:
+      - minio-data:/mnt/minio
+      - ./minio.license:/etc/minio/minio.license
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_OPTS=--address :9000 --console-address :9001 --license /etc/minio/minio.license
+    networks:
+      - minio_net
+
+volumes:
+  minio-data:
+    name: minio-data
+
+networks:
+  minio_net:
+    name: minio_net

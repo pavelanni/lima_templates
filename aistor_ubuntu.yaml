@@ -51,6 +51,8 @@ provision:
     useradd -M -r -g minio-user minio-user
     mkdir -p /mnt/minio
     chown minio-user:minio-user /mnt/minio
+    mkdir -p /etc/minio
+    chown minio-user:minio-user /etc/minio
 
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env
 

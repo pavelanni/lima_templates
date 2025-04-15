@@ -1,0 +1,83 @@
+# This template requires Lima v0.11.1 or later.
+
+images:
+- location: "https://dl.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud-Base-9.5-20241118.0.x86_64.qcow2"
+  arch: "x86_64"
+  digest: "sha256:069493fdc807300a22176540e9171fcff2227a92b40a7985a0c1c9e21aeebf57"
+# No 20240609.1 for aarch64
+- location: "https://dl.rockylinux.org/pub/rocky/9.5/images/aarch64/Rocky-9-GenericCloud-Base-9.5-20241118.0.aarch64.qcow2"
+  arch: "aarch64"
+  digest: "sha256:5443bcc0507fadc3d7bd3e8d266135ab8db6966c703216933f824164fd3252f1"
+# Fallback to the latest release image.
+# Hint: run `limactl prune` to invalidate the cache
+- location: "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+  arch: "x86_64"
+- location: "https://dl.rockylinux.org/pub/rocky/9/images/aarch64/Rocky-9-GenericCloud.latest.aarch64.qcow2"
+  arch: "aarch64"
+mountTypesUnsupported: [ "9p" ]
+mounts:
+- location: "~"
+- location: "/tmp/lima"
+  writable: true
+
+disk: 20G
+
+networks:
+- lima: user-v2
+
+additionalDisks:
+- name: "minio1"
+  format: true
+  fsType: "xfs"
+- name: "minio2"
+  format: true
+  fsType: "xfs"
+- name: "minio3"
+  format: true
+  fsType: "xfs"
+- name: "minio4"
+  format: true
+  fsType: "xfs"
+- name: "minio5"
+  format: true
+  fsType: "xfs"
+- name: "minio6"
+  format: true
+  fsType: "xfs"
+- name: "minio7"
+  format: true
+  fsType: "xfs"
+- name: "minio8"
+  format: true
+  fsType: "xfs"
+
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -e
+    dnf install -y net-tools
+    curl -o /tmp/minio.rpm https://dl.min.io/aistor/minio/release/linux-arm64/minio.rpm
+    rpm -i /tmp/minio.rpm
+
+    curl -o /tmp/mc.rpm https://dl.min.io/aistor/mc/release/linux-arm64/mc-enterprise.rpm
+    rpm -i /tmp/mc.rpm
+    ln -s /usr/local/bin/mcli /usr/local/bin/mc
+
+    groupadd -r minio-user
+    useradd -M -r -g minio-user minio-user
+    mkdir -p /etc/minio
+    chown minio-user:minio-user /etc/minio
+
+    chown minio-user:minio-user /mnt/lima-minio{1..4}
+    echo "LABEL=lima-minio1	/mnt/lima-minio1	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio2	/mnt/lima-minio2	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio3	/mnt/lima-minio3	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio4	/mnt/lima-minio4	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio5	/mnt/lima-minio5	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio6	/mnt/lima-minio6	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio7	/mnt/lima-minio7	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    echo "LABEL=lima-minio8	/mnt/lima-minio8	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env_8disks
+
+    systemctl enable --now minio
