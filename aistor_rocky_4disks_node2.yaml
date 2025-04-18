@@ -44,6 +44,7 @@ provision:
   script: |
     #!/bin/bash
     set -e
+    set -x
     dnf install -y net-tools
     curl -o /tmp/minio.rpm https://dl.min.io/aistor/minio/release/linux-arm64/minio.rpm
     rpm -i /tmp/minio.rpm
@@ -57,11 +58,14 @@ provision:
     mkdir -p /etc/minio
     chown minio-user:minio-user /etc/minio
 
+    mkdir -p /mnt/lima-minio{1..4}
     chown minio-user:minio-user /mnt/lima-minio{1..4}
     echo "LABEL=lima-minio5	/mnt/lima-minio1	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio6	/mnt/lima-minio2	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio7	/mnt/lima-minio3	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio8	/mnt/lima-minio4	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    umount /mnt/lima-minio{5..8}
+    mount -a
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env_4disks_4nodes
 
     systemctl enable --now minio
