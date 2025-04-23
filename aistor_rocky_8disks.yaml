@@ -78,6 +78,10 @@ provision:
     echo "LABEL=lima-minio6	/mnt/lima-minio6	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio7	/mnt/lima-minio7	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio8	/mnt/lima-minio8	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
+    mount -a
+    chown -R minio-user:minio-user /mnt/lima-minio{1..8}
+    chmod u+rwx /mnt/lima-minio{1..8}
+
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env_8disks
 
     systemctl enable --now minio

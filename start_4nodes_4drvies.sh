@@ -7,8 +7,8 @@ done
 
 # copy the license file to all nodes
 for i in {1..4}; do
-    limactl cp minio.license minio-node${i}:
-    limactl shell minio-node${i} bash -c "sudo mv minio.license /etc/minio/minio.license"
+    limactl cp minio.license minio-node${i}:/tmp/minio.license
+    limactl shell minio-node${i} bash -c "sudo mv /tmp/minio.license /etc/minio/minio.license"
 done
 
 # start the minio service on all nodes

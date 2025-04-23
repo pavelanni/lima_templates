@@ -64,7 +64,10 @@ provision:
     echo "LABEL=lima-minio3	/mnt/lima-minio3	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio4	/mnt/lima-minio4	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     umount /mnt/lima-minio{1..4}
+    systemctl daemon-reload
     mount -a
+    chown -R minio-user:minio-user /mnt/lima-minio{1..4}
+    chmod u+rwx /mnt/lima-minio{1..4}
     curl -o /etc/default/minio https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_env_4disks_4nodes
 
     systemctl enable --now minio
