@@ -57,8 +57,6 @@ provision:
     mkdir -p /etc/minio
     chown minio-user:minio-user /etc/minio
 
-    mkdir -p /mnt/lima-minio{1..4}
-    chown minio-user:minio-user /mnt/lima-minio{1..4}
     echo "LABEL=lima-minio1	/mnt/lima-minio1	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio2	/mnt/lima-minio2	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
     echo "LABEL=lima-minio3	/mnt/lima-minio3	xfs	rw,nofail,noatime,defaults	0	0" >> /etc/fstab
