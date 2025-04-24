@@ -44,6 +44,7 @@ provision:
   script: |
     #!/bin/bash
     set -e
+    set -x
     dnf install -y net-tools
     curl -o /tmp/minio.rpm https://dl.min.io/aistor/minio/release/linux-arm64/minio.rpm
     rpm -i /tmp/minio.rpm

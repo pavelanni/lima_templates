@@ -1,6 +1,6 @@
 #!/bin/bash
 for i in {1..4}; do
-    limactl start --name minio-node${i} \
+    limactl start --log-level=debug --name minio-node${i} \
         --tty=false \
         https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/aistor_rocky_4disks_node${i}.yaml
 done
