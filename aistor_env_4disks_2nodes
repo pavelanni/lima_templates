@@ -1,4 +1,4 @@
 MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin
-MINIO_VOLUMES="http://lima-node{1...4}.internal:9000/mnt/minio{1...4}"
+MINIO_VOLUMES="http://lima-node{1...2}.internal:9000/mnt/minio{1...2}"
 MINIO_OPTS="--address :9000 --console-address :9001 --license /etc/minio/minio.license"
