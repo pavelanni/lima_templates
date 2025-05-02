@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Default values
 VM_PREFIX="node"
-MOUNT_SCRIPT="mount_disks.sh"
+MOUNT_SCRIPT="${SCRIPT_DIR}/mount_disks.sh"
 
 # Help function
 show_help() {
@@ -13,7 +16,7 @@ show_help() {
     echo "Options:"
     echo "  -n NUM_NODES     Number of nodes (VMs) to process"
     echo "  -p VM_PREFIX     Prefix for VM names (default: node)"
-    echo "  -s SCRIPT_PATH   Path to the disk mounting script (default: mount_disks.sh)"
+    echo "  -s SCRIPT_PATH   Path to the disk mounting script (default: ${SCRIPT_DIR}/mount_disks.sh)"
     echo "  -h              Show this help message"
     exit 1
 }

@@ -31,7 +31,7 @@ while getopts "p:fh" opt; do
 done
 
 # Get list of VMs with the specified prefix
-VM_LIST=$(limactl list --json | grep '"name": "'"${VM_PREFIX}"'[^"]*"' | cut -d'"' -f4)
+VM_LIST=$(limactl list | grep "^${VM_PREFIX}" | cut -d' ' -f1)
 
 if [ -z "$VM_LIST" ]; then
     echo "No VMs found with prefix '${VM_PREFIX}'"

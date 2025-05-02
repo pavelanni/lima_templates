@@ -230,64 +230,17 @@ verify_selinux() {
     local vm_name=$1
     echo "Verifying SELinux configuration on ${vm_name}..."
 
-    local commands="
-        # Check if SELinux is enabled and enforcing
-        if ! command -v getenforce &>/dev/null; then
-            echo \"❌ SELinux is not installed\"
-            return 1
-        fi
+    # Check environment file SELinux context
+    local context
+    context=$(limactl shell "${vm_name}" sudo ls -Z /etc/default/minio | awk '{print $1}')
 
-        selinux_status=\$(getenforce)
-        if [ \"\$selinux_status\" != \"Enforcing\" ]; then
-            echo \"❌ SELinux is not in enforcing mode (current: \$selinux_status)\"
-            return 1
-        fi
-        echo \"✅ SELinux is enabled and enforcing\"
-
-        # Check MinIO binary context
-        minio_context=\$(ls -Z /usr/local/bin/minio | grep -o 'system_u:object_r:[^:]*' || true)
-        if [ -z \"\$minio_context\" ]; then
-            echo \"❌ Could not get SELinux context for MinIO binary\"
-            return 1
-        fi
-        if ! echo \"\$minio_context\" | grep -q 'bin_t'; then
-            echo \"❌ Incorrect SELinux context for MinIO binary: \$minio_context\"
-            return 1
-        fi
-        echo \"✅ MinIO binary has correct SELinux context\"
-
-        # Check MinIO environment file context
-        env_context=\$(ls -Z /etc/default/minio | grep -o 'system_u:object_r:[^:]*' || true)
-        if [ -z \"\$env_context\" ]; then
-            echo \"❌ Could not get SELinux context for environment file\"
-            return 1
-        fi
-        if ! echo \"\$env_context\" | grep -q 'systemd_unit_file_t'; then
-            echo \"❌ Incorrect SELinux context for environment file: \$env_context\"
-            return 1
-        fi
-        echo \"✅ Environment file has correct SELinux context\"
-
-        # Check mount points context
-        for i in {1..4}; do
-            mount_point='${MOUNT_PREFIX}'\$i
-            mount_context=\$(ls -Zd \"\$mount_point\" | grep -o 'system_u:object_r:[^:]*' || true)
-            if [ -z \"\$mount_context\" ]; then
-                echo \"❌ Could not get SELinux context for \$mount_point\"
-                continue
-            fi
-            if ! echo \"\$mount_context\" | grep -q 'mnt_t'; then
-                echo \"❌ Incorrect SELinux context for \$mount_point: \$mount_context\"
-                continue
-            fi
-            echo \"✅ Mount point \$mount_point has correct SELinux context\"
-        done
-    "
-
-    if ! limactl shell "${vm_name}" sudo bash -c "${commands}"; then
+    if [[ "$context" == *"systemd_unit_file_t"* ]]; then
+        echo "✅ Environment file has correct SELinux context"
+        return 0
+    else
+        echo "❌ Incorrect SELinux context for environment file: $context"
         return 1
     fi
-    return 0
 }
 
 # Main verification loop

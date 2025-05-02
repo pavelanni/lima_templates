@@ -135,10 +135,6 @@ configure_minio() {
         # Configure SELinux
         semanage fcontext -a -t systemd_unit_file_t '/etc/default/minio'
         restorecon -v /etc/default/minio
-
-        # Enable and start MinIO service
-        systemctl enable minio
-        systemctl start minio
     "
 
     if ! limactl shell "${vm_name}" sudo bash -c "${config_commands}"; then
