@@ -1,0 +1,42 @@
+minimumLimaVersion: 1.1.0
+
+base:
+- template://_images/rocky-9
+- template://_default/mounts
+
+# MinIO-specific configurations
+disk: 20G
+
+networks:
+- lima: user-v2
+
+mountTypesUnsupported: [ "9p" ]
+
+# Additional disks for MinIO data storage
+additionalDisks:
+- name: "minio1"
+  format: false
+- name: "minio2"
+  format: false
+- name: "minio3"
+  format: false
+- name: "minio4"
+  format: false
+- name: "minio5"
+  format: false
+- name: "minio6"
+  format: false
+- name: "minio7"
+  format: false
+- name: "minio8"
+  format: false
+
+# System requirements for MinIO
+cpus: 4
+memory: 8GiB
+
+# Mount points for data transfer
+mounts:
+- location: "~"
+- location: "/tmp/lima"
+  writable: true

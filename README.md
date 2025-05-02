@@ -1,6 +1,63 @@
-# Lima templates for MinIO deployments
+# Lima Templates for MinIO
 
-These templates can be used to create MinIO server instances using Lima virtual machines.
+This repository contains Lima VM templates and automation scripts for setting up MinIO clusters.
+
+## Repository Structure
+
+```none
+lima_templates/
+├── templates/          # Lima VM templates
+│   └── minio/         # MinIO-specific templates
+├── scripts/
+│   ├── cluster/       # Cluster management scripts
+│   ├── storage/       # Storage management scripts
+│   └── minio/         # MinIO-specific scripts
+├── config/
+│   └── env/          # Environment configurations
+├── examples/          # Example configurations
+└── docs/             # Documentation
+```
+
+## Quick Start
+
+See the [2-node cluster example](examples/2node-cluster/README.md) for a basic setup.
+
+## Templates
+
+The templates use Lima's built-in base templates and add MinIO-specific configurations:
+
+- `rocky-4disks.yaml`: Rocky Linux 9 template with 4 data disks
+- `rocky-8disks.yaml`: Rocky Linux 9 template with 8 data disks
+
+## Scripts
+
+### Cluster Management
+
+- `create_lima_cluster.sh`: Create a new cluster
+- `delete_lima_cluster.sh`: Delete an existing cluster
+- `verify_cluster_setup.sh`: Verify cluster configuration
+
+### Storage Management
+
+- `create_disks.sh`: Create Lima disks
+- `delete_disks.sh`: Delete Lima disks
+- `mount_disks.sh`: Mount and format disks
+
+### MinIO Configuration
+
+- `setup_minio_users.sh`: Set up MinIO users
+- `configure_minio_cluster.sh`: Configure MinIO service
+
+## Requirements
+
+- Lima v0.11.1 or later
+- macOS or Linux host
+- Sufficient disk space for VMs and data
+- Sufficient RAM for the cluster
+
+## License
+
+See [LICENSE](LICENSE) file.
 
 ## Create Lima disks
 

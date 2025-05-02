@@ -47,7 +47,7 @@ if ! [[ "$NUM_DISKS" =~ ^[0-9]+$ ]] || [ "$NUM_DISKS" -lt 1 ]; then
 fi
 
 # Validate size format
-if ! [[ "$SIZE" =~ ^[0-9]+[GT][iB]?$ ]]; then
+if ! [[ "$SIZE" =~ ^[0-9]+[GT](iB|B)$ ]]; then
     echo "Error: Size must be in format like 10GiB, 100GB, 1TB"
     echo "Examples: 10GiB, 20GB, 1TB, 500GB"
     exit 1
