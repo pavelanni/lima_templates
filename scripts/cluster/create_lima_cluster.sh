@@ -2,7 +2,7 @@
 
 # Help function
 show_help() {
-    echo "Usage: $0 -t TEMPLATE_FILE -n NUM_NODES -d DISKS_PER_NODE [-p PREFIX] [-v VM_PREFIX]"
+    echo "Usage: $0 -t TEMPLATE_FILE -n NUM_NODES -d DISKS_PER_NODE [-p VM_PREFIX] [-k DISK_PREFIX]"
     echo
     echo "Create Lima VMs with configurable number of nodes and disks per node"
     echo
@@ -10,8 +10,8 @@ show_help() {
     echo "  -t TEMPLATE_FILE    Path to the Lima template YAML file"
     echo "  -n NUM_NODES       Number of nodes (VMs) to create"
     echo "  -d DISKS_PER_NODE  Number of disks per node"
-    echo "  -p PREFIX          Prefix for disk names (default: minio)"
-    echo "  -v VM_PREFIX       Prefix for VM names (default: node)"
+    echo "  -p VM_PREFIX       Prefix for VM names (default: node)"
+    echo "  -k DISK_PREFIX     Prefix for disk names (default: minio)"
     echo "  -h                 Show this help message"
     exit 1
 }
@@ -21,13 +21,13 @@ DISK_PREFIX="minio"
 VM_PREFIX="node"
 
 # Parse command line arguments
-while getopts "t:n:d:p:v:h" opt; do
+while getopts "t:n:d:p:k:h" opt; do
     case $opt in
     t) TEMPLATE_FILE="$OPTARG" ;;
     n) NUM_NODES="$OPTARG" ;;
     d) DISKS_PER_NODE="$OPTARG" ;;
-    p) DISK_PREFIX="$OPTARG" ;;
-    v) VM_PREFIX="$OPTARG" ;;
+    p) VM_PREFIX="$OPTARG" ;;
+    k) DISK_PREFIX="$OPTARG" ;;
     h) show_help ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -104,9 +104,23 @@ generate_disk_names() {
         if [ -n "$set_args" ]; then
             set_args="$set_args | "
         fi
-        set_args="${set_args}.additionalDisks[$i].name = \"$DISK_PREFIX$disk_num\""
+        set_args="${set_args}.additionalDisks[$i].name = \"$DISK_PREFIX$disk_num\" | .additionalDisks[$i].format = false"
     done
 
+    echo "$set_args"
+}
+
+# Function to generate the --set argument for portForwards
+# For each VM, hostPorts start at 9100 + (node_num-1)*100 and 9101 + (node_num-1)*100
+# guestPorts are always 9000 and 9001
+# hostIP is always "0.0.0.0"
+generate_port_forwards() {
+    local node_num=$1
+    local base_host_port=$((9100 + (node_num - 1) * 100))
+    local set_args=".portForwards = ["
+    set_args="${set_args}{\"guestPort\":9000,\"hostPort\":$base_host_port,\"hostIP\":\"0.0.0.0\"},"
+    set_args="${set_args}{\"guestPort\":9001,\"hostPort\":$((base_host_port + 1)),\"hostIP\":\"0.0.0.0\"}"
+    set_args="${set_args}]"
     echo "$set_args"
 }
 
@@ -114,15 +128,12 @@ generate_disk_names() {
 for ((node = 1; node <= NUM_NODES; node++)); do
     vm_name="${VM_PREFIX}${node}"
     disk_names=$(generate_disk_names $node)
+    port_forwards=$(generate_port_forwards $node)
 
-    echo "Creating $vm_name with disks: $disk_names"
-    if [ "$node" -eq 1 ]; then
-        # First VM uses template as is
-        limactl start --tty=false "$TEMPLATE_FILE" --name "$vm_name"
-    else
-        # Other VMs need disk names modified
-        limactl start --tty=false "$TEMPLATE_FILE" --name "$vm_name" --set "$disk_names"
-    fi
+    combined_set_args="$disk_names | $port_forwards"
+
+    echo "Creating $vm_name with --set: $combined_set_args"
+    limactl start --tty=false "$TEMPLATE_FILE" --name "$vm_name" --set "$combined_set_args"
 
     if [ $? -eq 0 ]; then
         echo "Successfully created and started $vm_name"

@@ -5,14 +5,14 @@ DISK_PREFIX="minio"
 
 # Help function
 show_help() {
-    echo "Usage: $0 -n NUM_DISKS -s SIZE [-p PREFIX]"
+    echo "Usage: $0 -n NUM_DISKS -s SIZE [-k PREFIX]"
     echo
     echo "Create multiple Lima disks with specified size"
     echo
     echo "Options:"
     echo "  -n NUM_DISKS    Number of disks to create"
     echo "  -s SIZE         Size of each disk (e.g., 10GiB, 100GB)"
-    echo "  -p PREFIX       Prefix for disk names (default: minio)"
+    echo "  -k PREFIX       Prefix for disk names (default: minio)"
     echo "  -f             Force creation without confirmation"
     echo "  -h             Show this help message"
     exit 1
@@ -20,11 +20,11 @@ show_help() {
 
 # Parse command line arguments
 FORCE=0
-while getopts "n:s:p:fh" opt; do
+while getopts "n:s:k:fh" opt; do
     case $opt in
     n) NUM_DISKS="$OPTARG" ;;
     s) SIZE="$OPTARG" ;;
-    p) DISK_PREFIX="$OPTARG" ;;
+    k) DISK_PREFIX="$OPTARG" ;;
     f) FORCE=1 ;;
     h) show_help ;;
     \?)

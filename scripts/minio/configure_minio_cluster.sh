@@ -3,16 +3,19 @@
 # Default values
 VM_PREFIX="node"
 ARCH="arm64" # or amd64
+DISK_PREFIX="minio"
 
 # Help function
 show_help() {
-    echo "Usage: $0 -n NUM_NODES [-p VM_PREFIX] [-a ARCH] -l LICENSE_FILE -e ENV_FILE"
+    echo "Usage: $0 -n NUM_NODES [-p VM_PREFIX] [-d NUM_DISKS] [-k DISK_PREFIX] [-a ARCH] -l LICENSE_FILE -e ENV_FILE"
     echo
     echo "Install and configure MinIO across cluster nodes"
     echo
     echo "Options:"
     echo "  -n NUM_NODES     Number of nodes (VMs) to process"
     echo "  -p VM_PREFIX     Prefix for VM names (default: node)"
+    echo "  -d NUM_DISKS     Number of disks per node (required for env template)"
+    echo "  -k DISK_PREFIX   Prefix for disk names (default: minio)"
     echo "  -a ARCH         Architecture: arm64 or amd64 (default: arm64)"
     echo "  -l LICENSE_FILE Path to MinIO license file"
     echo "  -e ENV_FILE     Path to MinIO environment file"
@@ -21,10 +24,12 @@ show_help() {
 }
 
 # Parse command line arguments
-while getopts "n:p:a:l:e:h" opt; do
+while getopts "n:p:d:k:a:l:e:h" opt; do
     case $opt in
     n) NUM_NODES="$OPTARG" ;;
     p) VM_PREFIX="$OPTARG" ;;
+    d) NUM_DISKS="$OPTARG" ;;
+    k) DISK_PREFIX="$OPTARG" ;;
     a) ARCH="$OPTARG" ;;
     l) LICENSE_FILE="$OPTARG" ;;
     e) ENV_FILE="$OPTARG" ;;
@@ -36,10 +41,20 @@ while getopts "n:p:a:l:e:h" opt; do
     esac
 done
 
-# Check required parameters
+# If NUM_DISKS is not provided, try to detect it on the first node
 if [ -z "$NUM_NODES" ] || [ -z "$LICENSE_FILE" ] || [ -z "$ENV_FILE" ]; then
     echo "Error: Missing required parameters"
     show_help
+fi
+
+if [ -z "$NUM_DISKS" ]; then
+    echo "Detecting number of disks on ${VM_PREFIX}1..."
+    NUM_DISKS=$(limactl shell "${VM_PREFIX}1" bash -c "ls /mnt | grep '^${DISK_PREFIX}' | wc -l" | tr -d '[:space:]')
+    if ! [[ "$NUM_DISKS" =~ ^[0-9]+$ ]] || [ "$NUM_DISKS" -lt 1 ]; then
+        echo "Error: Could not detect a valid number of disks on ${VM_PREFIX}1"
+        exit 1
+    fi
+    echo "Detected $NUM_DISKS disks with prefix '${DISK_PREFIX}' on ${VM_PREFIX}1"
 fi
 
 # Validate parameters
@@ -115,10 +130,16 @@ configure_minio() {
 
     # Copy environment file
     echo "Copying environment file..."
-    if ! limactl cp "${ENV_FILE}" "${vm_name}:/tmp/minio.env"; then
+    export VM_PREFIX
+    export NUM_NODES
+    export NUM_DISKS
+    export DISK_PREFIX
+    envsubst <"$ENV_FILE" >"/tmp/minio.env"
+    if ! limactl cp "/tmp/minio.env" "${vm_name}:/tmp/minio.env"; then
         echo "Error: Failed to copy environment file to ${vm_name}"
         return 1
     fi
+    rm "/tmp/minio.env"
 
     # Move files and set SELinux context
     local config_commands="
