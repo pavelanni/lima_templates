@@ -4,7 +4,7 @@ This example demonstrates how to set up a basic 2-node MinIO cluster using Lima 
 
 ## Prerequisites
 
-- Lima installed and configured
+- Lima 1.1.0 or later is installed and configured
 - At least 40GB of free disk space
 - 8GB of available RAM
 
@@ -46,6 +46,12 @@ In the following steps we assume that you run all commands from the root directo
 
 ```bash
 ./scripts/cluster/verify_cluster_setup.sh -n 2
+```
+
+1. Start the `minio` service:
+
+```bash
+./scripts/minio/start_minio_service.sh -n 2
 ```
 
 ## Cleanup

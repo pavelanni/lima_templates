@@ -2,7 +2,7 @@
 
 # Help function
 show_help() {
-    echo "Usage: $0 -t TEMPLATE_FILE -n NUM_NODES -d DISKS_PER_NODE [-p PREFIX]"
+    echo "Usage: $0 -t TEMPLATE_FILE -n NUM_NODES -d DISKS_PER_NODE [-p PREFIX] [-v VM_PREFIX]"
     echo
     echo "Create Lima VMs with configurable number of nodes and disks per node"
     echo
@@ -11,6 +11,7 @@ show_help() {
     echo "  -n NUM_NODES       Number of nodes (VMs) to create"
     echo "  -d DISKS_PER_NODE  Number of disks per node"
     echo "  -p PREFIX          Prefix for disk names (default: minio)"
+    echo "  -v VM_PREFIX       Prefix for VM names (default: node)"
     echo "  -h                 Show this help message"
     exit 1
 }
@@ -20,12 +21,13 @@ DISK_PREFIX="minio"
 VM_PREFIX="node"
 
 # Parse command line arguments
-while getopts "t:n:d:p:h" opt; do
+while getopts "t:n:d:p:v:h" opt; do
     case $opt in
     t) TEMPLATE_FILE="$OPTARG" ;;
     n) NUM_NODES="$OPTARG" ;;
     d) DISKS_PER_NODE="$OPTARG" ;;
     p) DISK_PREFIX="$OPTARG" ;;
+    v) VM_PREFIX="$OPTARG" ;;
     h) show_help ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2

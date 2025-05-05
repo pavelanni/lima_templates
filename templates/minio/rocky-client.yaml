@@ -1,0 +1,39 @@
+minimumLimaVersion: 1.1.0
+
+base:
+- template://_images/rocky-9
+- template://_default/mounts
+
+# MinIO-specific configurations
+disk: 20G
+
+networks:
+- lima: user-v2
+
+mountTypesUnsupported: [ "9p" ]
+
+# System requirements for MinIO
+cpus: 2
+memory: 4GiB
+
+# Mount points for data transfer
+mounts:
+- location: "~"
+- location: "/tmp/lima"
+  writable: true
+
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -e
+    dnf install -y net-tools
+    curl -o /tmp/minio.rpm https://dl.min.io/aistor/minio/release/linux-arm64/minio.rpm
+    rpm -i /tmp/minio.rpm
+
+    curl -o /tmp/mc.rpm https://dl.min.io/aistor/mc/release/linux-arm64/mc-enterprise.rpm
+    rpm -i /tmp/mc.rpm
+    ln -s /usr/local/bin/mcli /usr/local/bin/mc
+
+    curl -o /tmp/warp.rpm -L https://github.com/minio/warp/releases/download/v1.1.4/warp_Linux_arm64.rpm
+    rpm -i /tmp/warp.rpm
