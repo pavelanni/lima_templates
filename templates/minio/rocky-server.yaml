@@ -1,0 +1,24 @@
+minimumLimaVersion: 1.1.0
+
+base:
+- template://_images/rocky-9
+- template://_default/mounts
+
+# MinIO-specific configurations
+disk: 20G
+
+networks:
+- lima: user-v2
+
+mountTypesUnsupported: [ "9p" ]
+
+# System requirements for MinIO
+cpus: 2
+memory: 4GiB
+
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -e
+    dnf install -y net-tools vim

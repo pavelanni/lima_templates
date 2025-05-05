@@ -1,0 +1,45 @@
+# This template requires Lima v0.11.1 or later.
+
+images:
+- location: "https://dl.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud-Base-9.5-20241118.0.x86_64.qcow2"
+  arch: "x86_64"
+  digest: "sha256:069493fdc807300a22176540e9171fcff2227a92b40a7985a0c1c9e21aeebf57"
+# No 20240609.1 for aarch64
+- location: "https://dl.rockylinux.org/pub/rocky/9.5/images/aarch64/Rocky-9-GenericCloud-Base-9.5-20241118.0.aarch64.qcow2"
+  arch: "aarch64"
+  digest: "sha256:5443bcc0507fadc3d7bd3e8d266135ab8db6966c703216933f824164fd3252f1"
+# Fallback to the latest release image.
+# Hint: run `limactl prune` to invalidate the cache
+- location: "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+  arch: "x86_64"
+- location: "https://dl.rockylinux.org/pub/rocky/9/images/aarch64/Rocky-9-GenericCloud.latest.aarch64.qcow2"
+  arch: "aarch64"
+mountTypesUnsupported: [ "9p" ]
+mounts:
+- location: "~"
+- location: "/tmp/lima"
+  writable: true
+
+# MinIO-specific configurations
+disk: 20G
+
+networks:
+- lima: user-v2
+
+# System requirements for MinIO
+cpus: 2
+memory: 4GiB
+
+provision:
+- mode: system
+  script: |
+    #!/bin/bash
+    set -e
+    dnf install -y net-tools vim
+
+    curl -o /tmp/mc.rpm https://dl.min.io/aistor/mc/release/linux-arm64/mc-enterprise.rpm
+    rpm -i /tmp/mc.rpm
+    ln -s /usr/local/bin/mcli /usr/local/bin/mc
+
+    curl -o /tmp/warp.rpm -L https://github.com/minio/warp/releases/download/v1.1.4/warp_Linux_arm64.rpm
+    rpm -i /tmp/warp.rpm
