@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # delete_disks.sh - Script to delete multiple Lima disks for MinIO
-# Usage: delete_disks.sh -n <number_of_disks> [-p <prefix>] [-f]
+# Usage: delete_disks.sh -n <number_of_disks> [-k <prefix>] [-f]
 
 set -e
 
@@ -11,10 +11,10 @@ FORCE=false
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 -n <number_of_disks> [-p <prefix>] [-f]"
+    echo "Usage: $0 -n <number_of_disks> [-k <prefix>] [-f]"
     echo "Options:"
     echo "  -n <number>   Number of disks to delete (required)"
-    echo "  -p <prefix>   Disk name prefix (default: minio)"
+    echo "  -k <prefix>   Disk name prefix (default: minio)"
     echo "  -f           Force delete without confirmation"
     echo "  -h           Display this help message"
     exit 1
@@ -33,13 +33,13 @@ validate_number() {
 }
 
 # Parse command line arguments
-while getopts "n:p:fh" opt; do
+while getopts "n:k:fh" opt; do
     case $opt in
     n)
         N_DISKS="$OPTARG"
         validate_number "$N_DISKS"
         ;;
-    p)
+    k)
         DISK_PREFIX="$OPTARG"
         ;;
     f)
