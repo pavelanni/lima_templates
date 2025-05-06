@@ -25,10 +25,12 @@ See the [2-node cluster example](examples/2node-cluster/README.md) for a basic s
 
 ## Templates
 
-The templates use Lima's built-in base templates and add MinIO-specific configurations:
+There are several templates you can use:
 
-- `rocky-4disks.yaml`: Rocky Linux 9 template with 4 data disks
-- `rocky-8disks.yaml`: Rocky Linux 9 template with 8 data disks
+- `rocky-server.yaml`: Rocky Linux 9 template to be used with Lima version 1.1+
+- `rocky-server-pre1.1.yaml`: Rocky Linux 9 template to be used with Lima version 1.0
+- `rocky-client.yaml`: Rocky 9 template with MinIO client and Warp tool installed; use it with Lima 1.1+
+- `rocky-client-pre1.1.yaml`: Rocky 9 template with MinIO client and Warp tool installed; use it with Lima 1.0
 
 ## Scripts
 
@@ -36,7 +38,6 @@ The templates use Lima's built-in base templates and add MinIO-specific configur
 
 - `create_lima_cluster.sh`: Create a new cluster
 - `delete_lima_cluster.sh`: Delete an existing cluster
-- `verify_cluster_setup.sh`: Verify cluster configuration
 
 ### Storage Management
 
@@ -50,11 +51,12 @@ The templates use Lima's built-in base templates and add MinIO-specific configur
 - `setup_minio_users.sh`: Set up MinIO user and group (`minio-user:minio-user`)
 - `configure_minio_cluster.sh`: Configure MinIO service in the cluster nodes
 - `start_minio_service.sh`: Enable and start `systemd` MinIO service
+- `verify_cluster_setup.sh`: Verify the cluster's setup and MinIO services
 - `stop_minio_service.sh`: Stop `systemd` MinIO service
 
 ## Requirements
 
-- Lima v1.1.0 or later (legacy templates are available under `templates/pre-1.1.0`)
+- Lima v1.0 or later (v1.1+ is recommended)
 - macOS or Linux host
 - Sufficient disk space for VMs and data
 - Sufficient RAM for the cluster
@@ -83,7 +85,7 @@ Use the template appropriate for the number of disks per node.
 Currently we provide 4-disk and 8-disk templates.
 
 ```bash
-./scripts/cluster/create_lima_cluster.sh -t ./templates/minio/rocky-4disks.yaml -n 2 -d 4
+./scripts/cluster/create_lima_cluster.sh -t ./templates/minio/rocky-server.yaml -n 2 -d 4
 ```
 
 ### Set up the MinIO user and group
@@ -127,19 +129,10 @@ The following script:
 - Sets the right permissions and ownership on all the files
 - Set the right SELinux context for the environment variables file
 
-Make sure you specify the right location for the license file and the right environment variable file for your cluster configuration (in this example it's for a 2-node, 4-drive cluster).
 Check available environment files in the `config/env` directory or create your own.
 
 ```bash
-./scripts/minio/configure_minio_cluster.sh -n 2 -l ./config/license/minio.license -e ./config/env/aistor_env_4disks_2nodes
-```
-
-### Verify the cluster setup
-
-This script verifies the installation, checking for all the components, permissions, and SELinux contexts.
-
-```bash
-./scripts/cluster/verify_cluster_setup.sh -n 2
+./scripts/minio/configure_minio_cluster.sh -n 2 -l ./config/license/minio.license -e ./config/env/aistor_env_template
 ```
 
 ### Start the AIStor service
@@ -153,19 +146,38 @@ Only after the service has been started on all the nodes, the AIStor cluster get
 ./scripts/minio/start_minio_service.sh -n 2
 ```
 
-### Start the client VM
+### Verify the cluster setup
 
-```shell
-limactl start --name minio-client --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/minio_ubuntu_client.yaml
+This script verifies the installation, checking for all the components, permissions, and SELinux contexts.
+
+```bash
+./scripts/cluster/verify_cluster_setup.sh -n 2
 ```
 
-Check if you can SSH into the client VM and ping the cluster nodes:
+### Create an alias
+
+The cluster exposes the API on http://localhost:9100 and the console UI at http://localhost:9101.
+Use these addresses and the default credentials `minioadmin:minioadmin` to create an alias and access the AIStor console.
+
+```bash
+mc alias set aistor-lima http://localhost:9100 minioadmin minioadmin
+```
+
+### Start the client VM (optional)
+
+If you don't want to run the `mc` client on your laptop, you can use the provided client VM.
+It has the MinIO Client (`mc`) installed as well as the Warp tool to test your cluster.
 
 ```shell
-limactl shell minio-client
+limactl start --name aistor-client --tty=false https://raw.githubusercontent.com/pavelanni/lima_templates/refs/heads/main/templates/minio/rocky-client.yaml
+```
+
+Check if you can SSH into the client VM and create an alias:
+
+```shell
+limactl shell aistor-client
 cd            # get to the home directory of the VM user
-ping lima-minio-server.internal  # this is the domain name of the server VM
-exit
+mc alias set http://lima-node1.internal:9000 minioadmin minioadmin
 ```
 
 ## Useful commands
