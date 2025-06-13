@@ -21,4 +21,4 @@ provision:
   script: |
     #!/bin/bash
     set -e
-    dnf install -y net-tools vim
+    dnf install -y net-tools vim bc lsof

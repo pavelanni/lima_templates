@@ -27,7 +27,7 @@ provision:
   script: |
     #!/bin/bash
     set -e
-    dnf install -y net-tools vim
+    dnf install -y net-tools vim curl nmap nmap-ncat firewalld bind-utils bc lsof
 
     curl -o /tmp/mc.rpm https://dl.min.io/aistor/mc/release/linux-arm64/mc-enterprise.rpm
     rpm -i /tmp/mc.rpm

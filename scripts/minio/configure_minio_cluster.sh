@@ -91,7 +91,7 @@ install_minio() {
 
     local commands="
         # Install net-tools
-        dnf install -y net-tools
+        dnf install -y net-tools firewalld
 
         # Install MinIO
         curl -o /tmp/minio.rpm https://dl.min.io/aistor/minio/release/linux-${ARCH}/minio.rpm
