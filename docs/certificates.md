@@ -386,3 +386,136 @@ In our labs we use hostnames provided by Lima in te form of `lima-lab1.internal`
             65:3e:45:d1:d2:e7:88:7e:c7:95:f2:69:4b:62:7e:82:b4:83
    ```
 
+The rest of the steps are the same as in the EasyRSA way.
+You should copy the certificates to the servers and restart the MinIO servers.
+
+### Create a certificate service
+
+In this section, you will create an online certificate service using Smallstep.
+That way you can create certificates for your servers without having to copy them manually.
+You will also be able to renew certificates manually or automatically using one of the ACME-compatible certificate services like `certbot` and `cert-manager` (for Kubernetes).
+
+By default, Smallstep creates CA artifacts under the `$HOME/.step` directory.
+You can [override](https://smallstep.com/docs/step-cli/reference/path/) it using the `STEPPATH` environment variable, but in this case, for simplicity, we'll use the default.
+
+1. **On the CA server VM**: Initialize the CA.
+
+   ```shell
+   step ca init
+   ```
+
+   You will have to answer several simple questions in the following dialogue. This is what to expect (taken from [here](https://smallstep.com/docs/step-ca/getting-started/#initialize-your-certificate-authority-ca)).
+
+   ```none
+   ✔ What would you like to name your new PKI? (e.g. Smallstep): MinIO Inc.
+   ✔ What DNS names or IP addresses would you like to add to your new CA? (e.g. ca.smallstep.com[,1.1.1.1,etc.]): lima-ca.internal
+   ✔ What address will your new CA listen at? (e.g. :443): :8443
+   ✔ What would you like to name the first provisioner for your new CA? (e.g. you@smallstep.com): bob@example.com
+   ✔ What do you want your password to be? [leave empty and we will generate one]: abc123
+
+   Generating root certificate...
+   all done!
+
+   Generating intermediate certificate...
+   all done!
+
+   ✔ Root certificate: /Users/bob/.step/certs/root_ca.crt
+   ✔ Root private key: /Users/bob/.step/secrets/root_ca_key
+   ✔ Root fingerprint: 702a094e239c9eec6f0dcd0a5f65e595bf7ed6614012825c5fe3d1ae1b2fd6ee
+   ✔ Intermediate certificate: /Users/bob/.step/certs/intermediate_ca.crt
+   ✔ Intermediate private key: /Users/bob/.step/secrets/intermediate_ca_key
+   ✔ Default configuration: /Users/bob/.step/config/defaults.json
+   ✔ Certificate Authority configuration: /Users/bob/.step/config/ca.json
+
+   Your PKI is ready to go.
+   ```
+
+   Take a note of the Root fingerprint. You will need it in one of the next steps.
+
+1. **On the CA server VM**: Start the CA service. Use the JSON generated in the previous step and mentioned in the last line of the output.
+
+   ```shell
+   step-ca $(step path)/config/ca.json
+   ```
+
+   This will start the CA service and listen on port 8443.
+
+### Create a certificate for a server
+
+1. **On the cluster node VM**: Bootstrap the CA client.
+
+   ```shell
+   step ca bootstrap --ca-url https://lima-ca.internal:8443 --fingerprint <ROOT_FINGERPRINT>
+   ```
+
+   Replace `<ROOT_FINGERPRINT>` with the Root fingerprint you took note of in the previous step.
+
+1. **On the cluster node VM**: Establish trust with the CA.
+
+   ```shell
+   step certificate install $(step path)/certs/root_ca.crt
+   ```
+
+   This will add the CA certificate to the trust store of the cluster node VM.
+
+1. **On the cluster node VM**: Create a certificate for the server.
+
+   ```shell
+   step ca certificate lima-lab1.internal lima-lab1.internal.crt lima-lab1.internal.key
+   ```
+
+   This will create a certificate for the server and store it in the `lima-lab1.internal.crt` file.
+   The key will be stored in the `lima-lab1.internal.key` file.
+
+1. **On the cluster node VM**: Copy the certificates to the proper location for the AIStor server to use them.
+
+   ```shell
+   cp lima-lab1.internal.crt /etc/minio/certs/public.crt
+   cp lima-lab1.internal.key /etc/minio/certs/private.key
+   sudo chown -R minio-user:minio-user /etc/minio/certs
+   sudo chmod 0644 /etc/minio/certs/public.crt
+   sudo chmod 0600 /etc/minio/certs/private.key
+   ```
+
+1. **On the cluster node VM**: Restart the MinIO server.
+
+   ```shell
+   sudo systemctl restart minio
+   ```
+
+### Configure ACME-compatible certificate service
+
+To be able to use the certificates with ACME-compatible certificate services like `certbot` and `cert-manager` (for Kubernetes),
+you need to restart the certificate authority (CA) with ACME provisioning enabled.
+
+1. **On the CA server VM**: Add an ACME provisioner.
+
+   ```shell
+   step ca provisioner add acme --type ACME
+   ```
+
+   Restart the CA service.
+
+   ```shell
+   step-ca $(step path)/config/ca.json
+   ```
+
+   This will start the CA service and listen on port 8443.
+
+1. **On the cluster node VM**: Get the root CA certificate from the CA server.
+
+   ```shell
+   step ca root --ca-url https://lima-ca.internal:8443 root_ca.crt
+   ```
+
+   This will download the root CA certificate from the CA server and store it in the `root_ca.crt` file.
+
+1. **On the cluster node VM**: Get a certificate from the ACME provisioner.
+
+   ```shell
+   step ca certificate --provisioner acme \
+   lima-lab1.internal lima-lab1.internal.crt lima-lab1.internal.key
+   ```
+
+   This will create a certificate for the server and store it in the `lima-lab1.internal.crt` file.
+   The key will be stored in the `lima-lab1.internal.key` file.
