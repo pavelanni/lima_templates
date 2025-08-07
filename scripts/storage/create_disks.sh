@@ -123,7 +123,7 @@ for ((i = 1; i <= NUM_DISKS; i++)); do
     fi
 
     echo "Creating ${disk_name} (${SIZE})..."
-    if ! limactl disk create "${disk_name}" --size "$SIZE"; then
+    if ! limactl disk create "${disk_name}" --size "$SIZE" --format raw; then
         echo "Failed to create disk: ${disk_name}"
         continue
     fi

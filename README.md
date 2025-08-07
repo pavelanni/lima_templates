@@ -2,6 +2,8 @@
 
 This repository contains Lima VM templates and automation scripts for setting up MinIO clusters.
 
+> **Note**: Most of the content from this repository has been copied to [github.com/pavelanni/lima-ops](https://github.com/pavelanni/lima-ops) to combine it with an Ansible-based approach. You may want to check that repository for the latest developments.
+
 ## Repository Structure
 
 ```none
